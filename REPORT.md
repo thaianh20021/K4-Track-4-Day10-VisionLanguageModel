@@ -1,11 +1,13 @@
-Họ tên: <điền họ tên>
-`dataset_version`: <điền, lấy từ data/splits/meta.json>
+Họ tên: Đặng Thái Anh
+`dataset_version`: d10-21e4070301
+
+Trạng thái: mới xác minh được evidence E0 từ lần chạy Colab. E1 đã huấn luyện nhưng chưa khôi phục được file chấm điểm; E2–E4 chưa có bằng chứng. Không dùng số liệu chưa kiểm chứng để nộp.
 
 ## Bảng tổng hợp (số của bạn, lấy từ `report/evidence/*.json`)
 
 | Mã | Setup | Tham số huấn luyện | VRAM đỉnh (GB) | Phút | F1 | CI95 | FP/ảnh | F1 pothole | F1 crack | F1 manhole |
 |---|---|---|---|---|---|---|---|---|---|---|
-| E0 | zero-shot | 0 | | | | | | | | |
+| E0 | zero-shot | 0 | không áp dụng | không áp dụng | 0.0814 | 0.0563–0.1126 | 0.8553 | 0.1419 | 0.0253 | 0.1490 |
 | E1 | LoRA LLM | | | | | | | | | |
 | E2 | + projector | | | | | | | | | |
 | E3 | + LoRA ViT | | | | | | | | | |
@@ -14,35 +16,35 @@ Họ tên: <điền họ tên>
 ## 10 câu hỏi (trả lời bằng **số của bạn**, không chép lại tài liệu)
 
 ### Câu 1 — Kiến trúc: ViT, projector và LLM của Qwen3-VL-4B có bao nhiêu tham số mỗi khối, và E1/E2/E3 mỗi cái cập nhật khối nào?
-<điền>
+Chưa hoàn tất E2/E3. E1 chỉ cập nhật LoRA trên LLM; E2 mở thêm projector, E3 thêm LoRA ViT (theo cấu hình notebook). Chưa đo tham số từng khối trên lần chạy này.
 
 ### Câu 2 — E0: `parse_valid_rate` bằng bao nhiêu, và hai lỗi phổ biến nhất của model gốc là gì (kèm một ví dụ output thô)?
-<điền>
+E0 có `parse_valid_rate = 0.8907`. F1 lớp crack chỉ 0.0253, với 170 FP và 293 FN; cần xem lại output thô để xác định và minh hoạ hai kiểu lỗi.
 
 ### Câu 3 — Thang 0–1000: nếu chấm output theo pixel (hoặc ngược lại) thì F1 ra sao và vì sao? Bạn đã kiểm chứng điều này thế nào?
-<điền>
+Nhãn và prompt dùng thang 0–1000. Chưa thực hiện thí nghiệm chấm sai thang để báo F1.
 
 ### Câu 4 — Mask loss: vì sao chỉ tính loss trên phần trả lời? Điều gì xảy ra nếu tính trên cả prompt và token ảnh?
-<điền>
+Loss chỉ tính trên token trả lời của assistant; prompt và token ảnh là ngữ cảnh đầu vào, không phải mục tiêu sinh.
 
 ### Câu 5 — Vì sao không thể huấn luyện đầy đủ projector nếu ViT bị lượng tử hoá 4-bit, và bạn đã xử lý thế nào? Vì sao projector phải ở float32?
-<điền>
+Projector được giữ ngoài lượng tử hoá và mở huấn luyện float32 ở E2/E3; các setup này chưa được chạy và xác minh.
 
 ### Câu 6 — Split theo phiên quay: vì sao chia ngẫu nhiên sẽ cho F1 cao giả? Số ảnh và số box từng lớp ở mỗi split là bao nhiêu?
-<điền>
+Split theo phiên quay để các frame gần nhau không lọt qua train/test. Train: 1422 ảnh (pothole 1074, crack 1750, manhole 691); val: 276 (66, 470, 103); test: 311 (121, 299, 163). Colab đã kiểm tra không trùng session giữa các split.
 
 ### Câu 7 — So sánh E1/E2/E3: mở projector và LoRA trên ViT có đáng không (F1, CI95, VRAM, thời gian)?
-<điền>
+Chưa đủ evidence E1–E3 để so sánh.
 
 ### Câu 8 — Tập test có 311 ảnh: khoảng tin cậy rộng thế nào, và điều đó giới hạn kết luận so sánh các setup ra sao?
-<điền>
+E0 F1 0.0814 với CI95 [0.0563, 0.1126]; tập test 311 ảnh chưa đủ để khẳng định chênh lệch nhỏ giữa các setup.
 
 ### Câu 9 — Phân tích lỗi theo lớp: lớp nào kém nhất và vì sao (kích thước box, số mẫu, ngữ nghĩa)? Kèm ảnh minh hoạ.
-<điền>
+Ở E0, crack kém nhất (F1 0.0253), tiếp theo pothole (0.1419), manhole (0.1490). Chưa có ảnh minh hoạ lỗi.
 
 ### Câu 10 — E4: bạn đổi biến nào, kết quả thế nào, và kết luận có đáng tin không?
-<điền>
+Chưa chạy E4; notebook có cấu hình ablation rank 4/64 nhưng chưa có số liệu.
 
 ## Nhìn lại
 
-<điền: điều bạn chưa hiểu, lỗi dữ liệu hoặc mô hình bạn gặp mà công cụ chấm chưa bắt được>
+Lần chạy E1 ban đầu lỗi vì `image_grid_thw` bị `squeeze(0)` thành tensor một chiều. Đã sửa trong notebook; cần khôi phục evidence E1 trước khi kết luận về hiệu quả huấn luyện.
