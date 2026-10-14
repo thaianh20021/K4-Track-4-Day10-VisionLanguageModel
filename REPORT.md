@@ -1,14 +1,14 @@
 Họ tên: Đặng Thái Anh
 `dataset_version`: d10-21e4070301
 
-Trạng thái: mới xác minh được evidence E0 từ lần chạy Colab. E1 đã huấn luyện nhưng chưa khôi phục được file chấm điểm; E2–E4 chưa có bằng chứng. Không dùng số liệu chưa kiểm chứng để nộp.
+Trạng thái: đã xác minh evidence E0 và E1 từ lần chạy Colab. E2–E4 chưa có bằng chứng.
 
 ## Bảng tổng hợp (số của bạn, lấy từ `report/evidence/*.json`)
 
 | Mã | Setup | Tham số huấn luyện | VRAM đỉnh (GB) | Phút | F1 | CI95 | FP/ảnh | F1 pothole | F1 crack | F1 manhole |
 |---|---|---|---|---|---|---|---|---|---|---|
 | E0 | zero-shot | 0 | không áp dụng | không áp dụng | 0.0814 | 0.0563–0.1126 | 0.8553 | 0.1419 | 0.0253 | 0.1490 |
-| E1 | LoRA LLM | | | | | | | | | |
+| E1 | LoRA LLM | 33,030,144 | 8.70 | 39.94 | 0.2524 | 0.2163–0.2894 | 1.3087 | 0.1393 | 0.1791 | 0.5418 |
 | E2 | + projector | | | | | | | | | |
 | E3 | + LoRA ViT | | | | | | | | | |
 | E4 | (ghi biến và giá trị) | | | | | | | | | |
@@ -34,10 +34,10 @@ Projector được giữ ngoài lượng tử hoá và mở huấn luyện float
 Split theo phiên quay để các frame gần nhau không lọt qua train/test. Train: 1422 ảnh (pothole 1074, crack 1750, manhole 691); val: 276 (66, 470, 103); test: 311 (121, 299, 163). Colab đã kiểm tra không trùng session giữa các split.
 
 ### Câu 7 — So sánh E1/E2/E3: mở projector và LoRA trên ViT có đáng không (F1, CI95, VRAM, thời gian)?
-Chưa đủ evidence E1–E3 để so sánh.
+E1 tăng F1 từ 0.0814 lên 0.2524 so với E0. Chưa đủ evidence E2–E3 để kết luận về projector hoặc ViT.
 
 ### Câu 8 — Tập test có 311 ảnh: khoảng tin cậy rộng thế nào, và điều đó giới hạn kết luận so sánh các setup ra sao?
-E0 F1 0.0814 với CI95 [0.0563, 0.1126]; tập test 311 ảnh chưa đủ để khẳng định chênh lệch nhỏ giữa các setup.
+E0 F1 0.0814, CI95 [0.0563, 0.1126]; E1 F1 0.2524, CI95 [0.2163, 0.2894]. Hai khoảng không chồng lấn; chưa thể so sánh E2/E3.
 
 ### Câu 9 — Phân tích lỗi theo lớp: lớp nào kém nhất và vì sao (kích thước box, số mẫu, ngữ nghĩa)? Kèm ảnh minh hoạ.
 Ở E0, crack kém nhất (F1 0.0253), tiếp theo pothole (0.1419), manhole (0.1490). Chưa có ảnh minh hoạ lỗi.
@@ -47,4 +47,4 @@ Chưa chạy E4; notebook có cấu hình ablation rank 4/64 nhưng chưa có s�
 
 ## Nhìn lại
 
-Lần chạy E1 ban đầu lỗi vì `image_grid_thw` bị `squeeze(0)` thành tensor một chiều. Đã sửa trong notebook; cần khôi phục evidence E1 trước khi kết luận về hiệu quả huấn luyện.
+Lần chạy E1 ban đầu lỗi vì `image_grid_thw` bị `squeeze(0)` thành tensor một chiều. Đã sửa trong notebook; E1 hoàn thành 300 bước. E2 lỗi `Attempting to unscale FP16 gradients`; notebook đã sửa nhưng chưa có kết quả E2.
